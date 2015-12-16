@@ -1,4 +1,5 @@
 dynlink-example
+dynlink-example-ghc
 .stack-work/
 dist/
 build/
