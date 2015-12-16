@@ -1,4 +1,11 @@
 .stack-work/
 dist/
+build/
 testlibs/testlib1/build/
+testlibs/c-linkage-example/prog
+testlibs/c-linkage-example/progdl
 *~
+*.o
+*.so
+*.so.*
+*.a

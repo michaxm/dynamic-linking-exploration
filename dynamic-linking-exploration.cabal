@@ -16,7 +16,7 @@ cabal-version:       >=1.10
 executable dynamic-linking-exploration
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -rdynamic
+  ghc-options:         -dynamic
   build-depends:       base
                      , unix
   default-language:    Haskell2010

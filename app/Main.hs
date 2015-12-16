@@ -11,9 +11,9 @@ foreign import ccall "dynamic"
   mkFun :: FunPtr Fun -> Fun
 
 libPath :: FilePath
-libPath = "testlibs/testlib1/libHStestlib1-0.1.0.0-ghc7.10.2.so"
-libPath = "testlibs/c-linkage-example/libctest.so.1.0"
---TODO: libPath = "testlibs/testlib1/libHStestlib1.so"
+--libPath = "testlibs/testlib1/libHStestlib1-0.1.0.0-ghc7.10.2.so"
+--libPath = "testlibs/c-linkage-example/libctest.so.1.0"
+libPath = "testlibs/testlib1/libHStestlib1.so"
 
 fnName :: String
 fnName = "ctest3"
@@ -21,10 +21,15 @@ fnName = "ctest3"
 main :: IO ()
 main = do
   putStrLn "try linking"
+  dl <- dlopen libPath [RTLD_LAZY]
+  funptr1 <- dlsym dl fnName
+  print (mkFun funptr1 6)
+  dlclose dl
   withDL libPath [RTLD_NOW] $ \mod -> do
     funptr <- dlsym mod fnName
     let fun = mkFun funptr in
-     print $ fun 3
+     print (fun 3) >> putStrLn "sdf"
 --     withCString "sdf" $ \str -> do
 --       strptr <- fun str
 --       print "sdf" --(fun str)
+  putStrLn "DONE"
