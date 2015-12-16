@@ -15,11 +15,20 @@ libPath :: FilePath
 --libPath = "testlibs/c-linkage-example/libctest.so.1.0"
 libPath = "testlibs/testlib1/libHStestlib1.so"
 
-fnName :: String
-fnName = "ctest3"
+defaultFnName :: String
+defaultFnName = "ctest3"
 
 main :: IO ()
 main = do
+  putStrLn $ "fn name to execute, exit to stop, default: " ++ defaultFnName
+  l <- getLine
+  case l of
+   "exit" -> putStrLn "without root rights, the demo program seems to segfault on exit" >> return ()
+   "" -> doRun defaultFnName
+   otherwise -> doRun l
+
+doRun :: String -> IO ()
+doRun fnName =  do
   putStrLn "try linking"
   dl <- dlopen libPath [RTLD_LAZY]
   funptr1 <- dlsym dl fnName
@@ -32,4 +41,5 @@ main = do
 --     withCString "sdf" $ \str -> do
 --       strptr <- fun str
 --       print "sdf" --(fun str)
-  putStrLn "DONE"
+  putStrLn $ "DONE for " ++ fnName
+  main
