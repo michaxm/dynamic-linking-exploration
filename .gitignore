@@ -6,6 +6,7 @@ testlibs/testlib1/build/
 testlibs/c-linkage-example/prog
 testlibs/c-linkage-example/progdl
 *~
+*_flymake.hs
 *.o
 *.so
 *.so.*
