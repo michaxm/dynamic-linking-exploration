@@ -10,33 +10,37 @@ type Fun = Int -> Int
 foreign import ccall "dynamic"
   mkFun :: FunPtr Fun -> Fun
 
-libPathC, libPathHs :: FilePath
+libPathC, libPathHsOverFFI, libPathPureHs :: FilePath
 libPathC = "testlibs/c-linkage-example/libctest.so.1.0"
-libPathHs = "testlibs/testlib1/libHStestlib1.so"
+libPathHsOverFFI = "testlibs/testlibFFI/libHStestlibFFI.so"
+libPathPureHs = "testlibs/testlibHS1/libHStesthslibHS1.so"
 
 defaultFnName :: String
 defaultFnName = "ctest3"
 
 main :: IO ()
 main = do
-  libPath <- getLibPath
+  (dlOpen, exitFails, libPath) <- getMode
   putStrLn $ "fn name to execute, exit to stop, default: " ++ defaultFnName
   l <- getLine
   case l of
-   "exit" -> putStrLn "without root rights, the demo program seems to segfault on exit" >> return ()
-   "" -> doRun libPath defaultFnName
-   otherwise -> doRun libPath l
+   "exit" -> if exitFails then putStrLn "without root rights, the demo program seems to segfault on exit" else return ()
+   "" -> doRun dlOpen libPath defaultFnName 
+   otherwise -> doRun dlOpen libPath l
+   where
+     doRun dlOpen libPath fnName = (if dlOpen then loadOverDlOpen else loadNatively) libPath fnName
 
-getLibPath :: IO FilePath
-getLibPath = do
+getMode :: IO (Bool, Bool, FilePath)
+getMode = do
   args <- getArgs
   case args of
-   ["hs"] -> return libPathHs
-   ["c"] -> return libPathC
-   _ -> error "hs or c expected as single arg"
+   ["hs"] -> return (False, False, libPathPureHs)
+   ["hs-ffi"] -> return (True, True, libPathHsOverFFI)
+   ["c"] -> return (True, False, libPathC)
+   _ -> error "c, hs-ffi or hs expected as single arg"
 
-doRun :: FilePath -> String -> IO ()
-doRun libPath fnName =  do
+loadOverDlOpen :: FilePath -> String -> IO ()
+loadOverDlOpen libPath fnName = do
   putStrLn "try linking"
   dl <- dlopen libPath [RTLD_LAZY]
   funptr1 <- dlsym dl fnName
@@ -49,7 +53,7 @@ doRun libPath fnName =  do
   putStrLn $ "DONE for " ++ fnName
   main
 
---type Fun = CString -> CString
---     withCString "sdf" $ \str -> do
---       strptr <- fun str
---       print "sdf" --(fun str)
+loadNatively :: FilePath -> String -> IO ()
+loadNatively libPath fnName = do
+  putStrLn "TODO"
+  main
